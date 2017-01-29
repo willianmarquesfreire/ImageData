@@ -30,14 +30,19 @@ pele clara 1 - rgba(213,150,124,1)
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var image = new Image();
-image.src = "./src/teste.jpg";
+image.src = "./src/teste4.jpg";
 image.onload = function () {
-    ctx.drawImage(image, 0, 0, 300, 300);
-    console.log(identify());
+    ctx.drawImage(image, -10, -10, 300, 300);
+    var a = identify();
+    a.forEach(function (data) {
+        ctx.fillStyle = "white";
+        destaque(data.x, data.y, 15, 5);
+        console.log(data);
+    });
 };
 
 function destaque(x, y, sx, sy) {
-    ctx.fillStyle = "black";
+    ctx.strokeStyle = "red";
     ctx.globalCompositeOperation = 'source-over';
 
     ctx.strokeRect(x, y, sx, sy);
@@ -84,20 +89,31 @@ function identify() {
         }
         if (xSize == 0) {
             if (r(posIniX, y) - r(posIniX, y - 1) > 10) {
-                if (!partesDoCorpo[elemsOrder]) {
-                    partesDoCorpo[elems[elemsOrder]] = {
-                        x: posIniX,
-                        y: y
-                    };
-                    elemsOrder++;
+                if (partesDoCorpo.length < elems.length) {
+                    if (!partesDoCorpo[elems[elemsOrder]]) {
+                        var diferencaMinima = false;
+                        if (partesDoCorpo[elemsOrder - 1]) {
+                            if (Math.abs(y - partesDoCorpo[elemsOrder - 1].y) < 10) {
+                                diferencaMinima = true;
+                            }
+                            //     if (Math.abs(posIniY - wY) < 10) {
+                            //         diferencaMinima = true
+                            //     }
+                        }
+                        if (!diferencaMinima) {
+                            partesDoCorpo.push({
+                                type: elems[elemsOrder],
+                                x: posIniX,
+                                y: y
+                            });
+                            elemsOrder++;
+                        }
+                    }
                 }
             }
         }
     }
 
-    var m = matriz["20,1"];
-
-    // destaque(10, 10, 100, 100)
     invert();
     return partesDoCorpo;
 }

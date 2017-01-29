@@ -11,12 +11,17 @@ var ctx = canvas.getContext("2d")
 var image = new Image()
 image.src = "./src/teste.jpg"
 image.onload = function () {
-    ctx.drawImage(image, 0, 0, 300, 300)
-    console.log(identify())
+    ctx.drawImage(image, -10, -10, 300, 300)
+    var a = identify()
+    a.forEach(function (data) {
+        ctx.fillStyle = "white"
+        destaque(data.x, data.y, 15, 5)
+        console.log(data)
+    })
 }
 
 function destaque(x, y, sx, sy) {
-    ctx.fillStyle = "black"
+    ctx.strokeStyle = "red"
     ctx.globalCompositeOperation = 'source-over'
 
 
@@ -43,7 +48,7 @@ function identify() {
     var elems = ["cabelo", "testa", "sobrancelha", "olho", "boca", "queixo"]
     var elemsOrder = 0;
     var partesDoCorpo = [];
-    
+
     for (var y = 1; y < ySize; y++) {
         for (var x = 1; x < xSize; x++) {
             // let result = {
@@ -65,27 +70,35 @@ function identify() {
         }
         if (xSize == 0) {
             if ((r(posIniX, y) - r(posIniX, y - 1)) > 10) {
-                if (!partesDoCorpo[elemsOrder]) {
-                    partesDoCorpo[elems[elemsOrder]] = {
-                        x: posIniX,
-                        y: y    
+                if (partesDoCorpo.length < elems.length) {
+                    if (!partesDoCorpo[elems[elemsOrder]]) {
+                        let diferencaMinima = false
+                        if (partesDoCorpo[elemsOrder - 1]) {
+                            if (Math.abs(y - partesDoCorpo[elemsOrder - 1].y) < 10) {
+                                diferencaMinima = true
+                            }
+                            //     if (Math.abs(posIniY - wY) < 10) {
+                            //         diferencaMinima = true
+                            //     }
+                        }
+                        if (!diferencaMinima) {
+                            partesDoCorpo.push({
+                                type: elems[elemsOrder],
+                                x: posIniX,
+                                y: y
+                            })
+                            elemsOrder++
+                        }
+
                     }
-                    elemsOrder++
                 }
             }
         }
     }
 
-    var m = matriz["20,1"];
-
-
-
-    // destaque(10, 10, 100, 100)
     invert()
     return partesDoCorpo;
 }
-
-
 
 function rgba(x, y) {
     var pixel = ctx.getImageData(x, y, 1, 1)
